@@ -37,9 +37,12 @@ async function handleRequest(request, _env, ctx) {
   } else if (/image\/webp/.test(accept)) {
     format = "webp";
   }
+  // if (/image\/webp/.test(accept)) {
+  //   format = "webp";
+  // }
 
   const u = new URL(url);
-  const imgUrl = u.searchParams.get("url");
+  let imgUrl = u.searchParams.get("url");
   if (!imgUrl) {
     return new Response("Missing url query parameter", { status: 400 });
   }
@@ -53,7 +56,6 @@ async function handleRequest(request, _env, ctx) {
   if (!supportedExtensions.includes(extension)) {
     return new Response("Unsupported image format", {
       status: 404,
-      headers: { "Content-Type": "text/html" },
     });
   }
 
@@ -64,9 +66,11 @@ async function handleRequest(request, _env, ctx) {
 
     if (imgUrl.includes("i0.hdslb.com")) {
       referer = "https://www.bilibili.com/";
+      imgUrl += "@200w_200H_1e_0c_100q.jpg";
     } else {
       referer = "https://www.pixiv.net/";
     }
+    console.log(imgUrl, referer);
     response = await fetch(imgUrl, {
       headers: {
         referer,
@@ -82,7 +86,6 @@ async function handleRequest(request, _env, ctx) {
     let imageData = await decodeImage(await response.arrayBuffer(), extension);
     await initResize(RESIZE_WASM);
     const { width, height } = imageData;
-    // Resize image width to 200
     imageData = await resize(imageData, {
       width: 200,
       height: Math.round((200 * height) / width),
