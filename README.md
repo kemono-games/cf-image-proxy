@@ -1,13 +1,3 @@
-# 👷 `img-color-worker`
+# Cloudflare Image Proxy
 
-Retrieve the dominant color of a PNG or JPEG image.
-
-`index.js` is the content of the Workers script.
-
-#### Wrangler
-
-To generate using [wrangler](https://github.com/cloudflare/wrangler)
-
-```
-wrangler generate myapp https://github.com/xtuc/img-color-worker
-```
+通过 Cloudflare Workers 实现的图片代理服务，同时支持 WebP 和 AVIF 格式。
