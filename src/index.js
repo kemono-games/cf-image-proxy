@@ -66,7 +66,7 @@ async function handleRequest(request, _env, ctx) {
 
     if (imgUrl.includes("i0.hdslb.com")) {
       referer = "https://www.bilibili.com/";
-      imgUrl += "@200w_200H_1e_0c_50q.webp";
+      imgUrl += `@1200w_1200H_1e_0c_95q.${extension}`;
     } else {
       referer = "https://www.pixiv.net/";
     }
