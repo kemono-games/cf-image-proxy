@@ -2,7 +2,8 @@
   "author": "{{ authors }}",
   "version": "1.0.0",
   "scripts": {
-    "start": "wrangler dev src/index.js"
+    "start": "wrangler dev src/index.js",
+    "deploy": "wrangler deploy src/index.js --minify"
   },
   "description": "A template for kick starting a Cloudflare Workers project",
   "main": "./index.js",
