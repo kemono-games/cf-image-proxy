@@ -1,0 +1,7 @@
+compatibility_date = "2024-05-29"name = "my-app"
+type = "webpack"
+
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
