@@ -57,8 +57,7 @@ async function handleRequest(request, _env, ctx) {
     });
   }
 
-  // let response = await cache.match(cacheKey);
-  let response;
+  let response = await cache.match(cacheKey);
 
   if (!response) {
     let referer = "";
