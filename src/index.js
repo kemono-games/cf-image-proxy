@@ -66,11 +66,10 @@ async function handleRequest(request, _env, ctx) {
 
     if (imgUrl.includes("i0.hdslb.com")) {
       referer = "https://www.bilibili.com/";
-      imgUrl += "@200w_200H_1e_0c_100q.jpg";
+      imgUrl += "@200w_200H_1e_0c_50q.webp";
     } else {
       referer = "https://www.pixiv.net/";
     }
-    console.log(imgUrl, referer);
     response = await fetch(imgUrl, {
       headers: {
         referer,
