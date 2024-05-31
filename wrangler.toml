@@ -1,4 +1,5 @@
-compatibility_date = "2024-05-29"name = "my-app"
+compatibility_date = "2024-05-29"
+name = "cf-image-proxy"
 type = "webpack"
 
 account_id = ""
