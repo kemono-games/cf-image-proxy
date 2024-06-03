@@ -49,6 +49,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cloudflare/workers-types@npm:^4.20240529.0":
+  version: 4.20240529.0
+  resolution: "@cloudflare/workers-types@npm:4.20240529.0"
+  checksum: 10c0/f5a8b3e930d19806d1bfbfce7106b9fe32f1eebb517bbf662ec8ecf7981f8496401e1b4177d71583afe4bb447738af947ffd12d08cfe8fc8cae318b3173a0190
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:0.8.1":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -278,45 +285,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsquash/avif@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@jsquash/avif@npm:1.3.0"
-  dependencies:
-    wasm-feature-detect: "npm:^1.2.11"
-  checksum: 10c0/c10c9bc7e40d0ec0a0050ac918c70acb7555914fdd020fdad5bfb7d559cd4f8d02bb62210cd27595fd1cd55268d72acb6790f6a841648e3151a8c5a2e94956cc
-  languageName: node
-  linkType: hard
-
-"@jsquash/jpeg@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@jsquash/jpeg@npm:1.4.0"
-  checksum: 10c0/e575f716ac5d37009a22208730bc0d91827e71778b6e2d2bad9fee48068e34da31dd922ca86e84b69331fef11861a5d6a69ed24244fc0bb005550500b0d58e8e
-  languageName: node
-  linkType: hard
-
-"@jsquash/png@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@jsquash/png@npm:3.0.1"
-  checksum: 10c0/b61a3a30f45c73d2972ff3fe1b358451f012e334e78342b596ee9c3c29a0bbcfb9be96d37894df45198e2aee63b942dff1b12682afeb45080c97e1cff1ad6d8c
-  languageName: node
-  linkType: hard
-
-"@jsquash/resize@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@jsquash/resize@npm:2.0.0"
-  checksum: 10c0/f094cdac0faa7a9e9e82f20c46d6fb229140f5ca382b5199861beb9c76e55442942b2c03e09279db07de585357fba147d9994173027b79d46da3cf07b9673665
-  languageName: node
-  linkType: hard
-
-"@jsquash/webp@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "@jsquash/webp@npm:1.4.0"
-  dependencies:
-    wasm-feature-detect: "npm:^1.2.11"
-  checksum: 10c0/b58ae7591cb4d314d5748a63eacf89cd2d2acd580ceb557a9db7bcb95e54ff3a1fdd823fe50ee0fe56ea6bc591df8ca4f1250d68cea434e9d5bbb5390895d4ad
-  languageName: node
-  linkType: hard
-
 "@npmcli/agent@npm:^2.0.0":
   version: 2.2.2
   resolution: "@npmcli/agent@npm:2.2.2"
@@ -356,11 +324,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.12.13
-  resolution: "@types/node@npm:20.12.13"
+  version: 20.14.0
+  resolution: "@types/node@npm:20.14.0"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/2ac92bb631dbddfb560eb3ba4eedbb1c688044a0130bc1ef032f5c0f20148ac7c9aa3c5aaa5a9787b6c4c6299847d754b96ee8c9def951481ba6628c46b683f5
+  checksum: 10c0/29ccc7592e9ca6b81d00f3a6673241d08e9042d801b10adfd9ebcbbf326208e0a0133a8d146158db18d02a68b85d9ce1fd94e6e1e5be0da263129bf6e42eb22d
   languageName: node
   linkType: hard
 
@@ -879,6 +847,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hono@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "hono@npm:4.4.2"
+  checksum: 10c0/765957044d46b932cca5be672441b931e11f652c24c4e7980116931db22aa270dbae4675de03425cd31b1f0ec6e56bf26fbff2af905928f271e565adb6563f31
+  languageName: node
+  linkType: hard
+
 "http-cache-semantics@npm:^4.1.1":
   version: 4.1.1
   resolution: "http-cache-semantics@npm:4.1.1"
@@ -1073,9 +1048,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"miniflare@npm:3.20240524.0":
-  version: 3.20240524.0
-  resolution: "miniflare@npm:3.20240524.0"
+"miniflare@npm:3.20240524.1":
+  version: 3.20240524.1
+  resolution: "miniflare@npm:3.20240524.1"
   dependencies:
     "@cspotcode/source-map-support": "npm:0.8.1"
     acorn: "npm:^8.8.0"
@@ -1091,7 +1066,7 @@ __metadata:
     zod: "npm:^3.20.6"
   bin:
     miniflare: bootstrap.js
-  checksum: 10c0/8cd3eaf4ee80f92f4e44fa099ec3f506b617392d31cdb127e76b409f655ce323b903dce0ea71c84bb95dd7e44b6f8f2f93c706f6df54a2d051627107e0ce58f4
+  checksum: 10c0/2eeafa52eefe87f6abc388f64ccd418b9bcfdc15c9d97f457e08d3182d482aaa335ea41229cdf32518ca1e7504ab0ee32eb677eb82c89b5fea66658840167e7e
   languageName: node
   linkType: hard
 
@@ -1434,11 +1409,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@jsquash/avif": "npm:^1.3.0"
-    "@jsquash/jpeg": "npm:^1.4.0"
-    "@jsquash/png": "npm:^3.0.1"
-    "@jsquash/resize": "npm:^2.0.0"
-    "@jsquash/webp": "npm:^1.4.0"
+    "@cloudflare/workers-types": "npm:^4.20240529.0"
+    hono: "npm:^4.4.2"
     wrangler: "npm:^3.57.2"
   languageName: unknown
   linkType: soft
@@ -1678,13 +1650,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wasm-feature-detect@npm:^1.2.11":
-  version: 1.6.1
-  resolution: "wasm-feature-detect@npm:1.6.1"
-  checksum: 10c0/c45c162978874bb4daa6b918e2b1477cc4a009aef2819876e916e293de5f7e7d4b36ad24cfca96d4d9dce5671cec153ee929bc75b440c6e5bd08d64f0a1481bf
-  languageName: node
-  linkType: hard
-
 "which@npm:^2.0.1":
   version: 2.0.2
   resolution: "which@npm:2.0.2"
@@ -1734,8 +1699,8 @@ __metadata:
   linkType: hard
 
 "wrangler@npm:^3.57.2":
-  version: 3.57.2
-  resolution: "wrangler@npm:3.57.2"
+  version: 3.58.0
+  resolution: "wrangler@npm:3.58.0"
   dependencies:
     "@cloudflare/kv-asset-handler": "npm:0.3.2"
     "@esbuild-plugins/node-globals-polyfill": "npm:^0.2.3"
@@ -1744,7 +1709,7 @@ __metadata:
     chokidar: "npm:^3.5.3"
     esbuild: "npm:0.17.19"
     fsevents: "npm:~2.3.2"
-    miniflare: "npm:3.20240524.0"
+    miniflare: "npm:3.20240524.1"
     nanoid: "npm:^3.3.3"
     path-to-regexp: "npm:^6.2.0"
     resolve: "npm:^1.22.8"
@@ -1763,7 +1728,7 @@ __metadata:
   bin:
     wrangler: bin/wrangler.js
     wrangler2: bin/wrangler.js
-  checksum: 10c0/bf426f25b3dc760b1fdb4da54cc683b60dca49a6507b16fb0e31b228d98392626acfad22a8f4a7b4c77b79dfe59376f45d570c54304409da8634ccb80cf67e8a
+  checksum: 10c0/860efee71b5b5638fc3571dc7051408a0e12d8c7ef03f62c2560b460c402a66f7defe17d63ce939297626cf90f65e1e772a6f57ec3479d62b8fa1a5f057737e6
   languageName: node
   linkType: hard
 
