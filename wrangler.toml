@@ -105,3 +105,6 @@ mode = "smart"
 # [[vectorize]]
 # binding = "MY_INDEX"
 # index_name = "my-index"
+
+[dev]
+port = 4000
