@@ -59,6 +59,9 @@ export class BaseAdapter {
         referer: this.fakeReferer ?? this.options.referer ?? '',
         'User-Agent': this.fakeUserAgent ?? this.options.userAgent ?? '',
       },
+      cf: {
+        cacheEverything: true,
+      },
     })
     if (response.status !== 200) {
       return new Response('fetch image failed.', { status: response.status })

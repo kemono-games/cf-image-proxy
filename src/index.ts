@@ -36,7 +36,7 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
     response = new Response(response.body, response)
     response.headers.set(
       'Cache-Control',
-      'public, s-maxage=3153600, max-age=31536000, immutable',
+      'public, s-maxage=31536000, max-age=31536000, immutable',
     )
     executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
     return response
