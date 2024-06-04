@@ -24,7 +24,8 @@ app.get("/", async ({ req, text, executionCtx }) => {
     const cache = caches.default;
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
-    const response = await adapter.fetch();
+    let response = await adapter.fetch();
+    response = new Response(response.body, response);
     response.headers.set(
       "Cache-Control",
       "public, s-maxage=3153600, max-age=31536000, immutable"
