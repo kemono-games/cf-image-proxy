@@ -18,9 +18,10 @@ export class PixivAdapter extends BaseAdapter {
     return host.includes(".pximg.net");
   }
 
-  public referer = "https://www.pixiv.net/";
+  public fakeReferer = "https://www.pixiv.net/";
 
-  targetFormat(accept: string) {
+  get targetFormat() {
+    const { accept } = this.options;
     if (!accept) return "jpg";
     if (/image\/webp/.test(accept)) {
       return "webp";
@@ -41,19 +42,9 @@ export class PixivAdapter extends BaseAdapter {
     throw new Error(`Unsupported format: ${format}`);
   };
 
-  async fetch() {
+  async postProcess(response: Response) {
     const format = this.format;
     const { width: targetWidth, quality } = this.options;
-
-    let response = await fetch(this.url, {
-      headers: {
-        referer: this.referer,
-        "User-Agent": this.userAgent,
-      },
-    });
-    if (response.status !== 200) {
-      return response;
-    }
 
     await initJpegDecoderWasm(JPEG_DEC_WASM);
     const origImageFormat = this.url.split(".").pop();

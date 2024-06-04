@@ -1,8 +1,10 @@
-import { Bindings } from 'hono/types'
-
-type ConvertOptions = {
+export type ConvertOptions = {
   width: number;
   quality: number;
+  referer?: string;
+  accept?: string;
+  userAgent?: string;
+  env?: CloudflareBindings;
 };
 
 export class BaseAdapter {
@@ -10,32 +12,27 @@ export class BaseAdapter {
     throw new Error("Not implemented");
   }
 
-  public userAgent =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36";
+  public fakeUserAgent?: string;
+  public fakeReferer?: string;
+
   public options: ConvertOptions = {
     width: 200,
     quality: 50,
   };
 
   public url = "";
-  public referer = "";
-  public format = "jpg";
 
-  constructor(
-    url: string,
-    accecpt?: string | null,
-    opts?: Partial<ConvertOptions>
-  ) {
+  constructor(url: string, opts?: Partial<ConvertOptions>) {
     this.url = this.urlRegulation(url);
-    this.format = this.targetFormat(accecpt ?? "");
-    this.options = { ...this.options, ...(opts ?? {}) };
+    this.options = { ...this.options, ...opts };
   }
 
   urlRegulation(url: string) {
     return url;
   }
 
-  targetFormat(accept: string) {
+  get targetFormat() {
+    const { accept } = this.options;
     if (!accept) return "jpg";
     if (/image\/avif/.test(accept)) {
       return "avif";
@@ -46,13 +43,28 @@ export class BaseAdapter {
     return "jpg";
   }
 
-  cacheKey() {
+  get cacheKey() {
     const { width, quality } = this.options;
-    const format = this.format;
+    const format = this.targetFormat;
     return this.url + `/${width}/${quality}/${format}`;
   }
 
-  fetch() {
-    throw new Error("Not implemented");
+  async postProcess(response: Response) {
+    return response;
+  }
+
+  async fetch() {
+    let response = await fetch(this.url, {
+      headers: {
+        referer: this.fakeReferer ?? this.options.referer ?? "",
+        "User-Agent": this.fakeUserAgent ?? this.options.userAgent ?? "",
+      },
+    });
+    if (response.status !== 200) {
+      return new Response("fetch image failed.", { status: response.status });
+    }
+
+    response = await this.postProcess(response);
+    return response;
   }
 }

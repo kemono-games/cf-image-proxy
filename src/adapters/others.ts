@@ -1,5 +1,4 @@
 import { fileTypeFromBuffer } from 'file-type'
-import { Bindings } from 'hono/types'
 
 import decodeJpeg, { init as initJpegDecoderWasm } from '@jsquash/jpeg/decode'
 import encodeJpeg, { init as initJpegEncoderWasm } from '@jsquash/jpeg/encode'
@@ -25,7 +24,8 @@ export class OthersAdapter extends BaseAdapter {
     return allowedHosts.includes(host);
   }
 
-  targetFormat(accept: string) {
+  get targetFormat() {
+    const { accept } = this.options;
     if (!accept) return "jpg";
     if (/image\/webp/.test(accept)) {
       return "webp";
@@ -49,19 +49,9 @@ export class OthersAdapter extends BaseAdapter {
     throw new Error(`Unsupported format: ${ext}`);
   };
 
-  async fetch() {
-    const format = this.format;
+  async postProcess(response: Response) {
+    const format = this.targetFormat;
     const { width: targetWidth, quality } = this.options;
-
-    let response = await fetch(this.url, {
-      headers: {
-        referer: this.referer,
-        "User-Agent": this.userAgent,
-      },
-    });
-    if (response.status !== 200) {
-      return response;
-    }
 
     let imageData = await this.decodeImage(await response.arrayBuffer());
     await initResize(RESIZE_WASM);

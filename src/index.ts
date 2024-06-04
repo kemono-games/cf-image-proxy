@@ -15,12 +15,20 @@ app.get("/", async ({ req, text, executionCtx, env }) => {
   const width = parseInt(params.get("w") ?? "200", 10);
   const quality = parseInt(params.get("q") ?? "65", 10);
   if (!imgUrl) return text("bad input");
-  const accept = req.header("accept") ?? "";
+  const accept = req.header("accept");
+  const referer = req.header("referer");
+  const userAgent = req.header("user-agent");
 
   for (const Adapter of adapters) {
     if (!Adapter.check(imgUrl, env)) continue;
-    const adapter = new Adapter(imgUrl, accept, { width, quality });
-    const cacheKey = adapter.cacheKey();
+    const adapter = new Adapter(imgUrl, {
+      accept,
+      referer,
+      userAgent,
+      width,
+      quality,
+    });
+    const cacheKey = adapter.cacheKey;
     const cache = caches.default;
     const cached = await cache.match(cacheKey);
     if (cached) return cached;

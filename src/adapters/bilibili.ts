@@ -1,4 +1,4 @@
-import { BaseAdapter } from './base'
+import { BaseAdapter, ConvertOptions } from './base'
 
 export class BilibiliCDNAdapter extends BaseAdapter {
   static check(url: string) {
@@ -11,20 +11,12 @@ export class BilibiliCDNAdapter extends BaseAdapter {
     return url.split("@")[0];
   }
 
-  public referer = "https://www.bilibili.com/";
+  public fakeReferer = "https://www.bilibili.com/";
 
-  fetch() {
-    const format = this.format;
+  constructor(url: string, opts?: Partial<ConvertOptions>) {
+    super(url, opts);
+    const format = this.targetFormat;
     const { width, quality } = this.options;
-
-    const requestUrl =
-      this.url + `@${width}w_1200h_0e_0c_${quality}q.${format}`;
-
-    return fetch(requestUrl, {
-      headers: {
-        referer: this.referer,
-        "User-Agent": this.userAgent,
-      },
-    });
+    this.url += `@${width}w_1200h_0e_0c_${quality}q.${format}`;
   }
 }
