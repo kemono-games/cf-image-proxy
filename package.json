@@ -5,6 +5,10 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
+    "@jsquash/jpeg": "^1.4.0",
+    "@jsquash/png": "^3.0.1",
+    "@jsquash/resize": "^2.0.0",
+    "@jsquash/webp": "^1.4.0",
     "hono": "^4.4.2"
   },
   "devDependencies": {

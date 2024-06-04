@@ -285,6 +285,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsquash/jpeg@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@jsquash/jpeg@npm:1.4.0"
+  checksum: 10c0/e575f716ac5d37009a22208730bc0d91827e71778b6e2d2bad9fee48068e34da31dd922ca86e84b69331fef11861a5d6a69ed24244fc0bb005550500b0d58e8e
+  languageName: node
+  linkType: hard
+
+"@jsquash/png@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@jsquash/png@npm:3.0.1"
+  checksum: 10c0/b61a3a30f45c73d2972ff3fe1b358451f012e334e78342b596ee9c3c29a0bbcfb9be96d37894df45198e2aee63b942dff1b12682afeb45080c97e1cff1ad6d8c
+  languageName: node
+  linkType: hard
+
+"@jsquash/resize@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@jsquash/resize@npm:2.0.0"
+  checksum: 10c0/f094cdac0faa7a9e9e82f20c46d6fb229140f5ca382b5199861beb9c76e55442942b2c03e09279db07de585357fba147d9994173027b79d46da3cf07b9673665
+  languageName: node
+  linkType: hard
+
+"@jsquash/webp@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@jsquash/webp@npm:1.4.0"
+  dependencies:
+    wasm-feature-detect: "npm:^1.2.11"
+  checksum: 10c0/b58ae7591cb4d314d5748a63eacf89cd2d2acd580ceb557a9db7bcb95e54ff3a1fdd823fe50ee0fe56ea6bc591df8ca4f1250d68cea434e9d5bbb5390895d4ad
+  languageName: node
+  linkType: hard
+
 "@npmcli/agent@npm:^2.0.0":
   version: 2.2.2
   resolution: "@npmcli/agent@npm:2.2.2"
@@ -1410,6 +1440,10 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@cloudflare/workers-types": "npm:^4.20240529.0"
+    "@jsquash/jpeg": "npm:^1.4.0"
+    "@jsquash/png": "npm:^3.0.1"
+    "@jsquash/resize": "npm:^2.0.0"
+    "@jsquash/webp": "npm:^1.4.0"
     hono: "npm:^4.4.2"
     wrangler: "npm:^3.57.2"
   languageName: unknown
@@ -1647,6 +1681,13 @@ __metadata:
   dependencies:
     imurmurhash: "npm:^0.1.4"
   checksum: 10c0/cb811d9d54eb5821b81b18205750be84cb015c20a4a44280794e915f5a0a70223ce39066781a354e872df3572e8155c228f43ff0cce94c7cbf4da2cc7cbdd635
+  languageName: node
+  linkType: hard
+
+"wasm-feature-detect@npm:^1.2.11":
+  version: 1.6.1
+  resolution: "wasm-feature-detect@npm:1.6.1"
+  checksum: 10c0/c45c162978874bb4daa6b918e2b1477cc4a009aef2819876e916e293de5f7e7d4b36ad24cfca96d4d9dce5671cec153ee929bc75b440c6e5bd08d64f0a1481bf
   languageName: node
   linkType: hard
 
