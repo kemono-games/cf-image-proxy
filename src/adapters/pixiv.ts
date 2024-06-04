@@ -20,14 +20,16 @@ export class PixivAdapter extends BaseAdapter {
   }
 
   urlRegulation(url: string) {
-    if (url.includes('_master1200')) return url
-    return (
-      url
-        .replace('/novel-cover-original/', '/c/480x960/novel-cover-master/')
-        .split('.')
-        .slice(0, -1)
-        .join('.') + '_master1200.jpg'
-    )
+    if (url.includes('novel-cover-original') && !url.includes('_master1200')) {
+      return (
+        url
+          .replace('/novel-cover-original/', '/c/480x960/novel-cover-master/')
+          .split('.')
+          .slice(0, -1)
+          .join('.') + '_master1200.jpg'
+      )
+    }
+    return url
   }
 
   async postProcess(response: Response) {
