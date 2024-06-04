@@ -1,10 +1,12 @@
+import { Bindings } from 'hono/types'
+
 type ConvertOptions = {
   width: number;
   quality: number;
 };
 
 export class BaseAdapter {
-  static check(url: string) {
+  static check(url: string, env?: CloudflareBindings) {
     throw new Error("Not implemented");
   }
 

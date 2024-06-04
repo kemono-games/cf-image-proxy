@@ -2,7 +2,9 @@ import { BaseAdapter } from './base'
 
 export class BilibiliCDNAdapter extends BaseAdapter {
   static check(url: string) {
-    return url.includes(".hdslb.com");
+    const urlObj = new URL(url);
+    const host = urlObj.host;
+    return host.includes(".hdslb.com");
   }
 
   urlRegulation(url: string): string {

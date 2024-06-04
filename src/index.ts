@@ -8,7 +8,7 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.get("/", async ({ req, text, executionCtx }) => {
+app.get("/", async ({ req, text, executionCtx, env }) => {
   const url = new URL(req.url);
   const params = url.searchParams;
   let imgUrl = params.get("url");
@@ -18,7 +18,7 @@ app.get("/", async ({ req, text, executionCtx }) => {
   const accept = req.header("accept") ?? "";
 
   for (const Adapter of adapters) {
-    if (!Adapter.check(imgUrl)) continue;
+    if (!Adapter.check(imgUrl, env)) continue;
     const adapter = new Adapter(imgUrl, accept, { width, quality });
     const cacheKey = adapter.cacheKey();
     const cache = caches.default;
