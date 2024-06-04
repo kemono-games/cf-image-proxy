@@ -19,6 +19,17 @@ export class PixivAdapter extends BaseAdapter {
     return 'jpg'
   }
 
+  urlRegulation(url: string) {
+    if (url.includes('_master1200')) return url
+    return (
+      url
+        .replace('/novel-cover-original/', '/c/480x960/novel-cover-master/')
+        .split('.')
+        .slice(0, -1)
+        .join('.') + '_master1200.jpg'
+    )
+  }
+
   async postProcess(response: Response) {
     const origImageFormat = this.url.split('.').pop()
     let imageData = await decodeImage(
