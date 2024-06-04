@@ -9,11 +9,11 @@
     "@jsquash/png": "^3.0.1",
     "@jsquash/resize": "^2.0.0",
     "@jsquash/webp": "^1.4.0",
-    "file-type": "^19.0.0",
     "hono": "^4.4.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240529.0",
+    "@types/magic-number": "^0",
     "prettier": "^3.3.0",
     "wrangler": "^3.57.2"
   },

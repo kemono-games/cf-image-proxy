@@ -1,5 +1,3 @@
-import { fileTypeFromBuffer } from 'file-type'
-
 import decodeJpeg, { init as initJpegDecoderWasm } from '@jsquash/jpeg/decode'
 import encodeJpeg, { init as initJpegEncoderWasm } from '@jsquash/jpeg/encode'
 import decodePng, { init as initPngDecoderWasm } from '@jsquash/png/decode'
@@ -11,6 +9,7 @@ import JPEG_ENC_WASM from '../../node_modules/@jsquash/jpeg/codec/enc/mozjpeg_en
 import PNG_DEC_WASM from '../../node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm'
 import RESIZE_WASM from '../../node_modules/@jsquash/resize/lib/resize/pkg/squoosh_resize_bg.wasm'
 import WEBP_ENC_WASM from '../../node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm'
+import { matchMagicNumber } from './magic'
 
 type ImageData = {
   width: number
@@ -21,7 +20,7 @@ type ImageData = {
 export const decodeImage = async (buffer: ArrayBuffer, format?: string) => {
   let ext = format
   if (!ext) {
-    const fileType = await fileTypeFromBuffer(buffer)
+    const fileType = matchMagicNumber(buffer)
     if (!fileType) {
       throw new Error('Unknown file type')
     }
@@ -45,17 +44,18 @@ export const transformImage = async (
   await initResize(RESIZE_WASM)
   const { width, height } = imageData
   const { width: targetWidth, quality } = options
+  const targetHeight = Math.round((targetWidth * height) / width)
 
-  imageData = await resize(imageData, {
+  const resized = await resize(imageData, {
     width: targetWidth,
-    height: Math.round((targetWidth * height) / width),
+    height: targetHeight,
   })
   if (targetFormat === 'webp') {
     await initWebpEncoderWasm(WEBP_ENC_WASM)
-    const webpImage = await encodeWebp(imageData, { quality })
+    const webpImage = await encodeWebp(resized, { quality })
     return { image: webpImage, mime: 'image/webp' }
   }
   await initJpegEncoderWasm(JPEG_ENC_WASM)
-  const jpegImage = await encodeJpeg(imageData, { quality })
+  const jpegImage = await encodeJpeg(resized, { quality })
   return { image: jpegImage, mime: 'image/jpeg' }
 }

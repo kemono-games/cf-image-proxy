@@ -54,7 +54,7 @@ export class BaseAdapter {
   }
 
   async fetch() {
-    let response = await fetch(this.url, {
+    const response = await fetch(this.url, {
       headers: {
         referer: this.fakeReferer ?? this.options.referer ?? '',
         'User-Agent': this.fakeUserAgent ?? this.options.userAgent ?? '',
@@ -64,7 +64,6 @@ export class BaseAdapter {
       return new Response('fetch image failed.', { status: response.status })
     }
 
-    response = await this.postProcess(response)
-    return response
+    return await this.postProcess(response)
   }
 }
