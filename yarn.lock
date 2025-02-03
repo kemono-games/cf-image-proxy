@@ -299,10 +299,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jsquash/resize@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@jsquash/resize@npm:2.0.0"
-  checksum: 10c0/f094cdac0faa7a9e9e82f20c46d6fb229140f5ca382b5199861beb9c76e55442942b2c03e09279db07de585357fba147d9994173027b79d46da3cf07b9673665
+"@jsquash/resize@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@jsquash/resize@npm:2.1.0"
+  checksum: 10c0/2e643eafd36e95b7933b49ed9e2c4948e9c42e167aecafba7a5f4e0af199916bf24d971d00246dc815a1bab0c19c9b2386aaf7fa205065dd9a4216c1718ce4ff
   languageName: node
   linkType: hard
 
@@ -1456,7 +1456,7 @@ __metadata:
     "@cloudflare/workers-types": "npm:^4.20240529.0"
     "@jsquash/jpeg": "npm:^1.4.0"
     "@jsquash/png": "npm:^3.0.1"
-    "@jsquash/resize": "npm:^2.0.0"
+    "@jsquash/resize": "npm:^2.1.0"
     "@jsquash/webp": "npm:^1.4.0"
     "@types/magic-number": "npm:^0"
     hono: "npm:^4.4.2"
