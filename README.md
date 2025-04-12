@@ -21,21 +21,21 @@
 
 ```bash
 # 安装依赖
-yarn install
+pnpm install
 ```
 
 ## 开发
 
 ```bash
 # 启动开发服务器
-yarn dev
+pnpm dev
 ```
 
 ## 部署
 
 ```bash
 # 部署到 Cloudflare Workers
-yarn deploy
+pnpm deploy
 ```
 
 ## 使用方法
