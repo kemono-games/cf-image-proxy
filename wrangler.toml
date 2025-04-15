@@ -6,4 +6,4 @@ mode = "smart"
 [dev]
 port = 4000
 [vars]
-ALLOW_OTHER_HOSTS = "img.srkyxk.com,img.kemono.games"
+ALLOW_OTHER_HOSTS = "img.srkyxk.com,img.kemono.games,dummyimage.com,placehold.co"
