@@ -22,7 +22,17 @@ export class OthersAdapter extends BaseAdapter {
   }
 
   async postProcess(response: Response) {
-    let imageData = await decodeImage(await response.arrayBuffer())
+    // Clone the response before reading its body
+    const responseClone = response.clone()
+    const buffer = await responseClone.arrayBuffer()
+    const contentType = response.headers.get('content-type')
+
+    // Return original response for SVG images
+    if (contentType?.includes('image/svg+xml')) {
+      return response
+    }
+
+    let imageData = await decodeImage(buffer)
     const { image, mime } = await transformImage(
       imageData,
       this.targetFormat,

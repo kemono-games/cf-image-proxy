@@ -56,6 +56,7 @@ export class BaseAdapter {
   async fetch() {
     const response = await fetch(this.url, {
       headers: {
+        accept: 'image/png,image/jpeg,image/webp,image/bmp,image/gif',
         referer: this.fakeReferer ?? this.options.referer ?? '',
         'User-Agent': this.fakeUserAgent ?? this.options.userAgent ?? '',
       },
