@@ -28,17 +28,21 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
       width,
       quality,
     })
-    const cacheKey = adapter.cacheKey
     const cache = caches.default
-    const cached = await cache.match(cacheKey)
-    if (cached) return cached
+    const cacheKey = adapter.cacheKey
+    if (env.NODE_ENV !== 'development') {
+      const cached = await cache.match(cacheKey)
+      if (cached) return cached
+    }
     let response = await adapter.fetch()
     response = new Response(response.body, response)
     response.headers.set(
       'Cache-Control',
       'public, s-maxage=31536000, max-age=31536000, immutable',
     )
-    executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
+    if (env.NODE_ENV !== 'development') {
+      executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
+    }
     return response
   }
   return text('not supported')

@@ -6,7 +6,9 @@ import encodeWebp, { init as initWebpEncoderWasm } from '@jsquash/webp/encode'
 
 import JPEG_DEC_WASM from '../../node_modules/@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm'
 import JPEG_ENC_WASM from '../../node_modules/@jsquash/jpeg/codec/enc/mozjpeg_enc.wasm'
+// @ts-ignore
 import PNG_DEC_WASM from '../../node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm'
+// @ts-ignore
 import RESIZE_WASM from '../../node_modules/@jsquash/resize/lib/resize/pkg/squoosh_resize_bg.wasm'
 import WEBP_ENC_WASM from '../../node_modules/@jsquash/webp/codec/enc/webp_enc_simd.wasm'
 import { matchMagicNumber } from './magic'
@@ -44,11 +46,13 @@ export const transformImage = async (
   await initResize(RESIZE_WASM)
   const { width, height } = imageData
   const { width: targetWidth, quality } = options
-  const targetHeight = Math.round((targetWidth * height) / width)
+  
+  const finalWidth = targetWidth > width ? width : targetWidth
+  const finalHeight = Math.round((finalWidth * height) / width)
 
   const resized = await resize(imageData, {
-    width: targetWidth,
-    height: targetHeight,
+    width: finalWidth,
+    height: finalHeight,
   })
   if (targetFormat === 'webp') {
     await initWebpEncoderWasm(WEBP_ENC_WASM)
