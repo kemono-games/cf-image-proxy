@@ -34,6 +34,9 @@ export class PixivAdapter extends BaseAdapter {
 
   async postProcess(response: Response) {
     const origImageFormat = this.url.split('.').pop()
+    if (origImageFormat === 'gif') {
+      return response
+    }
     let imageData = await decodeImage(
       await response.arrayBuffer(),
       origImageFormat ?? 'jpg',
