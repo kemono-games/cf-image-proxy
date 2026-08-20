@@ -6,6 +6,8 @@ type Bindings = {
   [key in keyof CloudflareBindings]: CloudflareBindings[key]
 }
 
+const CACHE_CONTROL = 'public, s-maxage=31536000, max-age=31536000, immutable'
+
 const app = new Hono<{ Bindings: Bindings }>()
 
 app.get('/', async ({ req, text, executionCtx, env }) => {
@@ -30,18 +32,54 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
     })
     const cache = caches.default
     const cacheKey = adapter.cacheKey
-    if (env.NODE_ENV !== 'development') {
+    const useCache = env.NODE_ENV !== 'development'
+
+    // L1：colo 缓存
+    if (useCache) {
       const cached = await cache.match(cacheKey)
       if (cached) return cached
     }
+
+    // L2：R2 持久缓存。colo 缓存按机房隔离且会被驱逐，immutable 内容
+    // 反复未命中会重复走 WASM 转码烧 CPU；R2 命中只花流式读取的几 ms。
+    const r2Key = cacheKey.replace(/^https?:\/\//, '')
+    if (useCache) {
+      const stored = await env.IMG_CACHE.get(r2Key)
+      if (stored) {
+        const response = new Response(stored.body, {
+          headers: {
+            'Content-Type':
+              stored.httpMetadata?.contentType ?? 'application/octet-stream',
+            'Cache-Control': CACHE_CONTROL,
+            'x-img-cache': 'r2',
+          },
+        })
+        executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
+        return response
+      }
+    }
+
     let response = await adapter.fetch()
-    response = new Response(response.body, response)
-    response.headers.set(
-      'Cache-Control',
-      'public, s-maxage=31536000, max-age=31536000, immutable',
-    )
-    if (env.NODE_ENV !== 'development') {
-      executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
+    if (response.status !== 200) {
+      return response
+    }
+    const body = await response.arrayBuffer()
+    const headers = new Headers(response.headers)
+    headers.set('Cache-Control', CACHE_CONTROL)
+    headers.set('x-img-cache', 'miss')
+    response = new Response(body, { status: 200, headers })
+    if (useCache) {
+      executionCtx.waitUntil(
+        Promise.all([
+          cache.put(cacheKey, response.clone()),
+          env.IMG_CACHE.put(r2Key, body, {
+            httpMetadata: {
+              contentType: headers.get('Content-Type') ?? undefined,
+              cacheControl: CACHE_CONTROL,
+            },
+          }),
+        ]),
+      )
     }
     return response
   }
