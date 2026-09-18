@@ -1,6 +1,11 @@
 // Fixed, non-cropping pximg CDN thumbnail, independent of proxy w/q/Accept.
 export const PIXIV_MODERATION_PROFILE = 'pximg-600x1200-q90-v1'
 
+// Only this fixed official placeholder is exempt, not the s.pximg.net host.
+export function isPixivModerationExempt(value: string): boolean {
+  return value === 'https://s.pximg.net/common/images/no_profile.png'
+}
+
 export function pixivModerationSource(value: string): string {
   const url = new URL(value)
   if (

@@ -88,6 +88,8 @@ export const BLOCKED_URLS: readonly string[] = [
 
 仅 `pximg.net` 及其子域名调用阿里云 `ImageModeration`，Bilibili 和其他图片源保持原有流程。
 审核在 L1/R2 图片缓存读取之前执行，手动 URL 黑名单仍优先处理。
+唯一免审地址为 `https://s.pximg.net/common/images/no_profile.png`（Pixiv 官方默认头像），
+按完整 URL 精确匹配，不免审其他路径、主机或带查询参数的变体。该图片直接进入正常图片缓存及代理流程，不访问审核 KV 或阿里云。
 
 KV 未命中时，Worker 直接下载 pximg CDN 的固定 `/c/600x1200_90/` JPEG 缩略图，
 通过 `DescribeUploadToken` 获取内容安全服务的临时 OSS 上传凭据，将缩略图原样上传，

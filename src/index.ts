@@ -4,6 +4,7 @@ import { adapters } from './adapters'
 import { PixivAdapter } from './adapters/pixiv'
 import { moderatePixiv, type ModerationEnv } from './moderation'
 import { isBlockedUrl } from './utils/blocklist'
+import { isPixivModerationExempt } from './utils/pixiv-source'
 
 type Bindings = ModerationEnv & { NODE_ENV?: string } & {
   [key in keyof CloudflareBindings]: CloudflareBindings[key]
@@ -45,7 +46,10 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
     const cacheKey = adapter.cacheKey
     const useCache = env.NODE_ENV !== 'development'
 
-    if (adapter instanceof PixivAdapter) {
+    if (
+      adapter instanceof PixivAdapter &&
+      !isPixivModerationExempt(adapter.url)
+    ) {
       try {
         if (!(await moderatePixiv(adapter.url, env))) {
           return text('image moderation blocked', 403, {

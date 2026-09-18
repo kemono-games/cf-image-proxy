@@ -6,7 +6,24 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { pixivModerationSource } from '../src/utils/pixiv-source.ts'
+import {
+  pixivModerationSource,
+  isPixivModerationExempt,
+} from '../src/utils/pixiv-source.ts'
+
+test('only the exact official default avatar is exempt from moderation', () => {
+  const url = 'https://s.pximg.net/common/images/no_profile.png'
+  assert.equal(isPixivModerationExempt(url), true)
+  for (const other of [
+    `${url}?version=2`,
+    `${url}/other.png`,
+    url.replace('https:', 'http:'),
+    url.replace('s.pximg.net', 'i.pximg.net'),
+    url.replace('s.pximg.net', 's.pximg.net.evil.test'),
+    url.replace('no_profile.png', 'other.png'),
+  ])
+    assert.equal(isPixivModerationExempt(other), false)
+})
 const require = createRequire(import.meta.url)
 const { build } = createRequire(require.resolve('wrangler/package.json'))(
   'esbuild',
@@ -339,6 +356,21 @@ test('Worker gates L1/R2, shares approval across variants, leaves other sources 
   }
   assert.equal(f.requests.length, 1)
   t.mock.method(globalThis, 'fetch', async () => Response.json({ Code: 408 }))
+  const savedKv = f.env.PIXIV_MODERATION
+  f.env.PIXIV_MODERATION = {
+    get: async () => {
+      throw new Error('Default avatar must not read moderation KV')
+    },
+    put: async () => {
+      throw new Error('Default avatar must not write moderation KV')
+    },
+  }
+  const networkCalls = f.allRequests.length
+  res = await request('https://s.pximg.net/common/images/no_profile.png')
+  assert.equal(res.status, 200)
+  assert.equal(await res.text(), 'cached')
+  assert.equal(f.allRequests.length, networkCalls)
+  f.env.PIXIV_MODERATION = savedKv
   const before = cacheReads
   res = await request('https://i.pximg.net/new.jpg')
   assert.equal(res.status, 503)
