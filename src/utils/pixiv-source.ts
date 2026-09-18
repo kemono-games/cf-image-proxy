@@ -33,7 +33,8 @@ export async function fetchPixivThumbnail(url: string): Promise<ArrayBuffer> {
   const response = await fetch(url, {
     headers: { Referer: 'https://www.pixiv.net/', Accept: 'image/jpeg' },
     // Do not follow a redirect to an original image or a different host.
-    redirect: 'error',
+    // Workers only supports follow/manual; 3xx is rejected by the status check.
+    redirect: 'manual',
     signal: AbortSignal.timeout(15000),
   })
   if (!response.ok || !response.body)

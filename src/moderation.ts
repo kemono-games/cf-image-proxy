@@ -206,7 +206,7 @@ export async function requestModeration(
       Authorization: `OSS ${string('AccessKeyId')}:${signature}`,
     },
     body: image,
-    redirect: 'error',
+    redirect: 'manual',
     signal: AbortSignal.timeout(20000),
   })
   await upload.body?.cancel()

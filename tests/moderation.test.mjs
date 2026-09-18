@@ -172,6 +172,8 @@ test('signed request, six-month TTL, fragment normalization and cache reuse', as
   )
   assert.equal(f.allRequests[0].init.headers.Referer, 'https://www.pixiv.net/')
   const upload = f.allRequests.find((r) => r.init.method === 'PUT')
+  assert.equal(f.allRequests[0].init.redirect, 'manual')
+  assert.equal(upload.init.redirect, 'manual')
   assert.deepEqual(new Uint8Array(upload.init.body), thumbnail)
   const canonicalOss = `PUT\n\nimage/jpeg\n${upload.init.headers.Date}\nx-oss-security-token:sts-token\n/test-bucket/${business.ossObjectName}`
   assert.equal(
@@ -232,6 +234,11 @@ test('CDN size and quality variants share a single KV record and upload', async 
 test('thumbnail errors never fall back to original uploads or cache approval', async (t) => {
   const f = fixture(t)
   for (const reply of [
+    () =>
+      new Response(null, {
+        status: 302,
+        headers: { Location: 'https://i.pximg.net/img-original/a.jpg' },
+      }),
     () => new Response('not found', { status: 404 }),
     () => new Response('<html>', { headers: { 'Content-Type': 'text/html' } }),
     () =>
