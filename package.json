@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"

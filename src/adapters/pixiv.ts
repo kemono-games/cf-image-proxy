@@ -4,8 +4,8 @@ import { BaseAdapter } from './base'
 export class PixivAdapter extends BaseAdapter {
   static check(url: string) {
     const urlObj = new URL(url)
-    const host = urlObj.host
-    return host.includes('.pximg.net')
+    const host = urlObj.hostname
+    return host === 'pximg.net' || host.endsWith('.pximg.net')
   }
 
   public fakeReferer = 'https://www.pixiv.net/'

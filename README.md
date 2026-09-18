@@ -82,7 +82,45 @@ export const BLOCKED_URLS: readonly string[] = [
 - 不匹配整个域名或路径前缀。不同的源 URL（包括适配器改写地址和重定向入口）需要分别列出。
 - 命中后返回 `403` 和 `Cache-Control: no-store`，不读取 L1/R2 缓存，也不请求上游。同一个源 URL 的所有 `w`、`q` 和输出格式均被禁止。
 - 仅接受 HTTP/HTTPS 图片 URL；无效 URL 返回 `400`。
-- 黑名单无法撤回浏览器已经缓存的图片；当前图片响应的浏览器缓存时间为一年。
+- 黑名单无法撤回浏览器已经缓存的图片；非 Pixiv 图片的浏览器缓存时间为一年，Pixiv 的策略见下文。
+
+## Pixiv 图片审核
+
+仅 `pximg.net` 及其子域名调用阿里云 `ImageModeration`，Bilibili 和其他图片源保持原有流程。
+审核在 L1/R2 图片缓存读取之前执行，手动 URL 黑名单仍优先处理。
+
+KV 未命中时，Worker 直接下载 pximg CDN 的固定 `/c/600x1200_90/` JPEG 缩略图，
+通过 `DescribeUploadToken` 获取内容安全服务的临时 OSS 上传凭据，将缩略图原样上传，
+再使用 `ossBucketName` 和 `ossObjectName` 调用审核。该流程不需要自行创建 OSS 桶，
+也不使用 Worker WASM 解码、缩放或压缩审核图。
+插画的 `img-original` / `img-square` 会统一到 `img-master`，小说封面统一到 `novel-cover-master`。
+缩略图下载、格式校验或上传失败时返回 503，不回退下载或上传原图；最多接受 5 MiB JPEG。
+其他 pximg 路径也仅尝试固定 CDN 缩略规格，不保证所有旧路径都支持。
+
+- 规则：`postImageCheckByVL_ec_01`，默认地域 `cn-shanghai`，须与阿里云控制台中规则所属地域一致。
+- 判定：任一返回标签的数值型 `Confidence > 80` 即拦截（403）；等于 80 不拦截。
+  不按 `RiskLevel` 放行或拦截，不对标签设置例外；因此 `nonLabel_lib` 等免审图库标签若返回大于 80 的分数也会拦截。
+  官方允许部分标签省略分数或返回 `null`，这些标签不触发分数阈值。
+- 缓存：通过和拦截结果均保存在 `PIXIV_MODERATION` KV，TTL 为 180 天（15,552,000 秒，按固定天数近似六个月），命中不续期。
+  Key 包含 `v2`、固定审核图规格版本、地域、规则名及规范化缩略 URL 的 SHA-256。
+  不同代理请求 `w/q/format` 和源地址 `/c/尺寸_质量/` 规格共享审核结果；不删除源地址中可能影响内容的查询参数。
+  展示图片的 L1/R2 缓存仍按尺寸、质量和格式区分。
+  缓存记录保留标签及分数、RequestId、审核时间。更改规则内容但保持规则名时，应清除对应记录或提升代码中的 `v2` 版本。
+- 失败：审核超时、业务错误、格式异常、KV 故障返回 503，不将接口失败保存为成功审核结果。
+- Pixiv 对浏览器返回 `private, no-store`，内部 L1/R2 仍缓存图片；其他源的缓存策略不变。
+  已经下发的一年浏览器缓存无法撤回，业务端需要更换代理请求 URL 的版本参数才能让这些旧请求重新经过 Worker。
+- URL 相同而图片内容变化时，已有审核结果仍会复用到过期。KV 最终一致性也可能导致并发重复审核，不能作为全局锁。
+
+上线前配置：
+
+1. `wrangler.toml` 已配置现有项目账号和 `PIXIV_MODERATION` KV namespace；迁移到其他账号时，执行 `pnpm exec wrangler kv namespace create PIXIV_MODERATION` 并更新账号及 namespace ID。
+2. 确认阿里云账号已开通服务，RAM AccessKey 有审核权限，且指定地域存在上述规则。
+3. 分别使用交互命令 `pnpm exec wrangler secret put ALIYUN_ACCESS_KEY_ID` 和
+   `pnpm exec wrangler secret put ALIYUN_ACCESS_KEY_SECRET` 设置密钥，不写入源码或普通 vars。
+4. 本地开发可将相同名称配置在已被 Git 忽略的 `.dev.vars`，KV 默认使用本地模拟。
+
+验证：Node.js 22.18+ 或 24 下执行 `pnpm test`；部署构建检查使用 `pnpm exec wrangler deploy --dry-run`。
+测试使用模拟凭据和接口，不产生真实审核调用。仅 dry-run 不能验证线上 KV ID 或阿里云授权。
 
 ## 许可证
 

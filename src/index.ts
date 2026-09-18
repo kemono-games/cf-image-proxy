@@ -1,9 +1,11 @@
 import { Hono } from 'hono'
 
 import { adapters } from './adapters'
+import { PixivAdapter } from './adapters/pixiv'
+import { moderatePixiv, type ModerationEnv } from './moderation'
 import { isBlockedUrl } from './utils/blocklist'
 
-type Bindings = {
+type Bindings = ModerationEnv & { NODE_ENV?: string } & {
   [key in keyof CloudflareBindings]: CloudflareBindings[key]
 }
 
@@ -43,10 +45,33 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
     const cacheKey = adapter.cacheKey
     const useCache = env.NODE_ENV !== 'development'
 
+    if (adapter instanceof PixivAdapter) {
+      try {
+        if (!(await moderatePixiv(adapter.url, env))) {
+          return text('image moderation blocked', 403, {
+            'Cache-Control': 'no-store',
+          })
+        }
+      } catch {
+        return text('image moderation unavailable', 503, {
+          'Cache-Control': 'no-store',
+          'Retry-After': '30',
+        })
+      }
+    }
+
+    // Browser responses must return to the Worker for future moderation checks.
+    const clientResponse = (response: Response) => {
+      if (!(adapter instanceof PixivAdapter)) return response
+      const headers = new Headers(response.headers)
+      headers.set('Cache-Control', 'private, no-store')
+      return new Response(response.body, { status: response.status, headers })
+    }
+
     // L1：colo 缓存
     if (useCache) {
       const cached = await cache.match(cacheKey)
-      if (cached) return cached
+      if (cached) return clientResponse(cached)
     }
 
     // L2：R2 持久缓存。colo 缓存按机房隔离且会被驱逐，immutable 内容
@@ -64,7 +89,7 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
           },
         })
         executionCtx.waitUntil(cache.put(cacheKey, response.clone()))
-        return response
+        return clientResponse(response)
       }
     }
 
@@ -90,7 +115,7 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
         ]),
       )
     }
-    return response
+    return clientResponse(response)
   }
   return text('not supported')
 })
