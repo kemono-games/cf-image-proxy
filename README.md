@@ -91,12 +91,12 @@ export const BLOCKED_URLS: readonly string[] = [
 唯一免审地址为 `https://s.pximg.net/common/images/no_profile.png`（Pixiv 官方默认头像），
 按完整 URL 精确匹配，不免审其他路径、主机或带查询参数的变体。该图片直接进入正常图片缓存及代理流程，不访问审核 KV 或阿里云。
 
-KV 未命中时，Worker 直接下载 pximg CDN 的固定 `/c/600x1200_90/` JPEG 缩略图，
-通过 `DescribeUploadToken` 获取内容安全服务的临时 OSS 上传凭据，将缩略图原样上传，
+KV 未命中时，Worker 直接下载 pximg CDN 的固定 `/c/600x1200_90/` 缩略图，
+通过 `DescribeUploadToken` 获取内容安全服务的临时 OSS 上传凭据，将 JPEG 缩略图原样上传，
 再使用 `ossBucketName` 和 `ossObjectName` 调用审核。该流程不需要自行创建 OSS 桶，
-也不使用 Worker WASM 解码、缩放或压缩审核图。
+如果 CDN 返回 PNG，则使用现有 WASM 编解码器保持尺寸、透明区域铺白，以固定质量 90 转成 JPEG 后上传；不在 Worker 中缩放审核图。
 插画的 `img-original` / `img-square` 会统一到 `img-master`，小说封面统一到 `novel-cover-master`。
-缩略图下载、格式校验或上传失败时返回 503，不回退下载或上传原图；最多接受 5 MiB JPEG。
+缩略图下载、格式校验或上传失败时返回 503，不回退下载或上传原图；下载和上传均限制 5 MiB；PNG 解码前限制最多 720,000 像素。
 其他 pximg 路径也仅尝试固定 CDN 缩略规格，不保证所有旧路径都支持。
 
 - 规则：`postImageCheckByVL_ec_01`，默认地域 `cn-shanghai`，须与阿里云控制台中规则所属地域一致。

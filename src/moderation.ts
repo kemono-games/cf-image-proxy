@@ -159,7 +159,7 @@ export async function requestModeration(
   thumbnailUrl: string,
   env: Omit<ModerationEnv, 'PIXIV_MODERATION'>,
 ): Promise<RecordData> {
-  // Fetch only the fixed CDN thumbnail. No WASM decode, resize, or original fallback.
+  // Fetch only the fixed CDN thumbnail; convert PNG to JPEG without resizing.
   const image = await fetchPixivThumbnail(pixivModerationSource(thumbnailUrl))
   const response = await callAliyun('DescribeUploadToken', {}, env)
   if (!object(response) || response.Code !== 200 || !object(response.Data)) {

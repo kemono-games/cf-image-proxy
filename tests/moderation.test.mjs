@@ -2,7 +2,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHmac } from 'node:crypto'
 import { createRequire } from 'node:module'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -35,6 +35,17 @@ await build({
   bundle: true,
   format: 'esm',
   outfile: join(moduleDir, 'moderation.mjs'),
+  plugins: [
+    {
+      name: 'compiled-wasm',
+      setup(build) {
+        build.onLoad({ filter: /\.wasm$/ }, async ({ path }) => ({
+          contents: `export default new WebAssembly.Module(Uint8Array.from(atob('${(await readFile(path)).toString('base64')}'), c => c.charCodeAt(0)))`,
+          loader: 'js',
+        }))
+      },
+    },
+  ],
   logLevel: 'silent',
 })
 const { moderatePixiv, parseResponse, isRejected, MODERATION_TTL } =
@@ -75,7 +86,12 @@ const encode = (value) =>
     (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
   )
 
-function fixture(t, payload = response()) {
+function fixture(
+  t,
+  payload = response(),
+  source = thumbnail,
+  mime = 'image/jpeg',
+) {
   const records = new Map()
   const writes = []
   const requests = []
@@ -96,8 +112,8 @@ function fixture(t, payload = response()) {
   t.mock.method(globalThis, 'fetch', async (url, init) => {
     allRequests.push({ url, init })
     if (new URL(url).hostname.endsWith('.pximg.net')) {
-      return new Response(thumbnail, {
-        headers: { 'Content-Type': 'image/jpeg' },
+      return new Response(source, {
+        headers: { 'Content-Type': mime },
       })
     }
     if (init.method === 'PUT') return new Response(null, { status: 200 })
@@ -375,4 +391,63 @@ test('Worker gates L1/R2, shares approval across variants, leaves other sources 
   res = await request('https://i.pximg.net/new.jpg')
   assert.equal(res.status, 503)
   assert.equal(cacheReads, before)
+})
+
+test('PNG thumbnails become real JPEG uploads and reuse the existing KV identity', async (t) => {
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAaX2RaAAAAAASUVORK5CYII=',
+    'base64',
+  )
+  const f = fixture(t, response(), png, 'image/png')
+  const url = 'https://i.pximg.net/user-profile/img/avatar_170.png'
+  assert.equal(await moderatePixiv(url, f.env), true)
+  assert.equal(
+    await moderatePixiv(
+      url.replace('/user-profile/', '/c/96x96/user-profile/'),
+      f.env,
+    ),
+    true,
+  )
+  const upload = f.allRequests.find((r) => r.init.method === 'PUT')
+  const bytes = new Uint8Array(upload.init.body)
+  assert.deepEqual([...bytes.slice(0, 3)], [255, 216, 255])
+  const { default: decodeJpeg, init } = await import('@jsquash/jpeg/decode.js')
+  await init(
+    new WebAssembly.Module(
+      await readFile(
+        require.resolve('@jsquash/jpeg/codec/dec/mozjpeg_dec.wasm'),
+      ),
+    ),
+  )
+  const decoded = await decodeJpeg(upload.init.body)
+  assert.equal(decoded.width, 1)
+  assert.equal(decoded.height, 1)
+  assert.ok(
+    [...decoded.data.slice(0, 3)].every((value) => value >= 250),
+    'transparent PNG is composited onto white',
+  )
+  assert.equal(upload.init.headers['Content-Type'], 'image/jpeg')
+  assert.match(upload.url, /\.jpg$/)
+  assert.equal(f.writes.length, 1)
+  assert.equal(f.allRequests.length, 4)
+})
+
+test('invalid and oversized PNG thumbnails fail before upload and are not cached', async (t) => {
+  const oversized = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAaX2RaAAAAAASUVORK5CYII=',
+    'base64',
+  )
+  oversized.writeUInt32BE(100000, 16)
+  for (const png of [
+    Buffer.from('not png'),
+    oversized,
+    oversized.subarray(0, 20),
+  ]) {
+    const f = fixture(t, response(), png, 'image/png')
+    await assert.rejects(
+      moderatePixiv('https://i.pximg.net/user-profile/a.png', f.env),
+    )
+    assert.equal(f.allRequests.length, 1)
+    assert.equal(f.writes.length, 0)
+  }
 })

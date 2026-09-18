@@ -44,14 +44,14 @@ export async function fetchPixivThumbnail(url: string): Promise<ArrayBuffer> {
   })
   if (!response.ok || !response.body)
     throw new Error('Pixiv thumbnail download failed')
-  if (
-    !response.headers
-      .get('Content-Type')
-      ?.toLowerCase()
-      .startsWith('image/jpeg')
-  ) {
+  const mime = response.headers
+    .get('Content-Type')
+    ?.split(';')[0]
+    .trim()
+    .toLowerCase()
+  if (mime !== 'image/jpeg' && mime !== 'image/png') {
     await response.body.cancel()
-    throw new Error('Pixiv thumbnail must be JPEG')
+    throw new Error('Pixiv thumbnail must be JPEG or PNG')
   }
   const reader = response.body.getReader()
   const chunks: Uint8Array[] = []
@@ -75,6 +75,29 @@ export async function fetchPixivThumbnail(url: string): Promise<ArrayBuffer> {
   for (const chunk of chunks) {
     bytes.set(chunk, offset)
     offset += chunk.length
+  }
+  if (mime === 'image/png') {
+    const signature = [137, 80, 78, 71, 13, 10, 26, 10]
+    if (
+      bytes.length < 33 ||
+      !signature.every((byte, i) => bytes[i] === byte) ||
+      new DataView(bytes.buffer).getUint32(8) !== 13 ||
+      new DataView(bytes.buffer).getUint32(12) !== 0x49484452
+    ) {
+      throw new Error('Invalid Pixiv PNG thumbnail')
+    }
+    // Bound decoded memory before invoking WASM, even for a small compressed file.
+    const header = new DataView(bytes.buffer)
+    const width = header.getUint32(16)
+    const height = header.getUint32(20)
+    if (!width || !height || width * height > 600 * 1200) {
+      throw new Error('Pixiv PNG thumbnail dimensions too large')
+    }
+    const { pngToJpeg } = await import('./png-to-jpeg')
+    const jpeg = await pngToJpeg(bytes.buffer)
+    if (jpeg.byteLength > 5 * 1024 * 1024)
+      throw new Error('Pixiv thumbnail too large')
+    return jpeg
   }
   if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) {
     throw new Error('Invalid Pixiv JPEG thumbnail')
