@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 
 import { adapters } from './adapters'
+import { isBlockedUrl } from './utils/blocklist'
 
 type Bindings = {
   [key in keyof CloudflareBindings]: CloudflareBindings[key]
@@ -17,6 +18,14 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
   const width = parseInt(params.get('w') ?? '200', 10)
   const quality = parseInt(params.get('q') ?? '65', 10)
   if (!imgUrl) return text('bad input')
+  try {
+    // 必须在适配器和所有缓存读取之前检查，缓存命中也不能放行。
+    if (isBlockedUrl(imgUrl)) {
+      return text('image URL blocked', 403, { 'Cache-Control': 'no-store' })
+    }
+  } catch {
+    return text('invalid image URL', 400, { 'Cache-Control': 'no-store' })
+  }
   const accept = req.header('accept')
   const referer = req.header('referer')
   const userAgent = req.header('user-agent')

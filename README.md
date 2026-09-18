@@ -66,6 +66,24 @@ https://your-worker.workers.dev/?url=https://example.com/image.jpg&w=800&q=80
 ALLOW_OTHER_HOSTS = "img.srkyxk.com,img.kemono.games"
 ```
 
+### 特定 URL 黑名单
+
+在 `src/config/blocklist.ts` 中填写需要禁止的原始图片 URL，然后重新部署：
+
+```ts
+export const BLOCKED_URLS: readonly string[] = [
+  'https://img.example.com/image.jpg',
+  'https://img.example.com/another.jpg?version=1',
+]
+```
+
+- 填写图片源地址，不是本站的 `/?url=...` 代理地址；清空数组即可取消所有 URL 封禁。
+- 对 `url` 参数进行 URL 标准化后精确匹配：忽略 `#fragment`，域名大小写和默认端口由 URL 解析器统一；路径大小写、查询参数及其顺序仍参与匹配。
+- 不匹配整个域名或路径前缀。不同的源 URL（包括适配器改写地址和重定向入口）需要分别列出。
+- 命中后返回 `403` 和 `Cache-Control: no-store`，不读取 L1/R2 缓存，也不请求上游。同一个源 URL 的所有 `w`、`q` 和输出格式均被禁止。
+- 仅接受 HTTP/HTTPS 图片 URL；无效 URL 返回 `400`。
+- 黑名单无法撤回浏览器已经缓存的图片；当前图片响应的浏览器缓存时间为一年。
+
 ## 许可证
 
 MIT
