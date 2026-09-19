@@ -305,6 +305,7 @@ test('Worker gates L1/R2, shares approval across variants, leaves other sources 
     entryPoints: ['src/index.ts'],
     bundle: true,
     format: 'esm',
+    target: `node${process.versions.node}`,
     loader: { '.wasm': 'binary' },
     outfile,
     logLevel: 'silent',
