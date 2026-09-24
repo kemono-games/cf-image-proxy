@@ -18,8 +18,8 @@ mode = "smart"
 port = 4000
 [vars]
 ALLOW_OTHER_HOSTS = "img.srkyxk.com,img.kemono.games,dummyimage.com,placehold.co"
-ALIYUN_MODERATION_REGION = "cn-shanghai"
-ALIYUN_MODERATION_SERVICE = "postImageCheckByVL_ec_01"
+ALIYUN_MODERATION_REGION = "ap-southeast-1"
+ALIYUN_MODERATION_SERVICE = "postImageCheckByVL_global_01"
 [[kv_namespaces]]
 binding = "PIXIV_MODERATION"
 id = "d121ee52e8de48748dfd98cf7dee3ceb"

@@ -99,8 +99,8 @@ function fixture(
   const env = {
     ALIYUN_ACCESS_KEY_ID: 'test-key',
     ALIYUN_ACCESS_KEY_SECRET: 'test-secret',
-    ALIYUN_MODERATION_REGION: 'cn-shanghai',
-    ALIYUN_MODERATION_SERVICE: 'postImageCheckByVL_ec_01',
+    ALIYUN_MODERATION_REGION: 'ap-southeast-1',
+    ALIYUN_MODERATION_SERVICE: 'postImageCheckByVL_global_01',
     PIXIV_MODERATION: {
       get: async (key) => records.get(key) ?? null,
       put: async (key, value, options) => {
@@ -128,7 +128,7 @@ function fixture(
           SecurityToken: 'sts-token',
           BucketName: 'test-bucket',
           FileNamePrefix: 'upload/',
-          OssInternetEndPoint: 'oss-cn-shanghai.aliyuncs.com',
+          OssInternetEndPoint: 'oss-ap-southeast-1.aliyuncs.com',
         },
       })
     }
@@ -178,7 +178,7 @@ test('signed request, six-month TTL, fragment normalization and cache reuse', as
   assert.equal(f.writes.length, 1)
   assert.equal(f.writes[0].options.expirationTtl, 15552000)
   const { url: endpoint, init } = f.requests[0]
-  assert.equal(endpoint, 'https://green-cip.cn-shanghai.aliyuncs.com/')
+  assert.equal(endpoint, 'https://green-cip.ap-southeast-1.aliyuncs.com/')
   assert.equal(init.method, 'POST')
   const params = new URLSearchParams(init.body)
   const signature = params.get('Signature')
@@ -193,7 +193,7 @@ test('signed request, six-month TTL, fragment normalization and cache reuse', as
       .update(`POST&%2F&${encode(canonical)}`)
       .digest('base64'),
   )
-  assert.equal(params.get('Service'), 'postImageCheckByVL_ec_01')
+  assert.equal(params.get('Service'), 'postImageCheckByVL_global_01')
   const business = JSON.parse(params.get('ServiceParameters'))
   assert.equal(business.imageUrl, undefined)
   assert.equal(business.ossBucketName, 'test-bucket')

@@ -3,8 +3,8 @@ declare namespace Cloudflare {
 	interface Env {
 		PIXIV_MODERATION: KVNamespace;
 		ALLOW_OTHER_HOSTS: "img.srkyxk.com,img.kemono.games,dummyimage.com,placehold.co";
-		ALIYUN_MODERATION_REGION: "cn-shanghai";
-		ALIYUN_MODERATION_SERVICE: "postImageCheckByVL_ec_01";
+		ALIYUN_MODERATION_REGION: "ap-southeast-1";
+		ALIYUN_MODERATION_SERVICE: "postImageCheckByVL_global_01";
 		IMG_CACHE: R2Bucket;
 	}
 }
