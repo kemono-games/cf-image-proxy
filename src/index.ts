@@ -47,6 +47,7 @@ app.get('/', async ({ req, text, executionCtx, env }) => {
     const useCache = env.NODE_ENV !== 'development'
 
     if (
+      env.PIXIV_MODERATION_ENABLED !== 'false' &&
       adapter instanceof PixivAdapter &&
       !isPixivModerationExempt(adapter.url)
     ) {

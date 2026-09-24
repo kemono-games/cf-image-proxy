@@ -6,6 +6,7 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { BLOCKED_URLS } from '../src/config/blocklist.ts'
 import {
   pixivModerationSource,
   isPixivModerationExempt,
@@ -392,6 +393,34 @@ test('Worker gates L1/R2, shares approval across variants, leaves other sources 
   res = await request('https://i.pximg.net/new.jpg')
   assert.equal(res.status, 503)
   assert.equal(cacheReads, before)
+
+  f.env.PIXIV_MODERATION_ENABLED = 'false'
+  f.env.PIXIV_MODERATION = {
+    get: async () => { throw new Error('Disabled moderation must not read KV') },
+    put: async () => { throw new Error('Disabled moderation must not write KV') },
+  }
+  let disabledFetches = 0
+  t.mock.method(globalThis, 'fetch', async () => {
+    disabledFetches++
+    throw new Error('Cached images must not need network calls')
+  })
+  for (const useL1 of [true, false]) {
+    hitL1 = useL1
+    res = await request('https://i.pximg.net/new.jpg')
+    assert.equal(res.status, 200)
+    assert.equal(await res.text(), useL1 ? 'cached' : 'stored')
+    assert.equal(res.headers.get('Cache-Control'), 'private, no-store')
+  }
+  assert.equal(disabledFetches, 0)
+  const readsBeforeBlocked = cacheReads + r2Reads
+  res = await request(BLOCKED_URLS[0])
+  assert.equal(res.status, 403)
+  assert.equal(cacheReads + r2Reads, readsBeforeBlocked)
+
+  f.env.PIXIV_MODERATION_ENABLED = 'true'
+  res = await request('https://i.pximg.net/new.jpg')
+  assert.equal(res.status, 503)
+  assert.equal(cacheReads + r2Reads, readsBeforeBlocked)
 })
 
 test('PNG thumbnails become real JPEG uploads and reuse the existing KV identity', async (t) => {

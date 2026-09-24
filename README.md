@@ -86,6 +86,10 @@ export const BLOCKED_URLS: readonly string[] = [
 
 ## Pixiv 图片审核
 
+当前通过 `PIXIV_MODERATION_ENABLED = "false"` 暂时关闭审核：跳过审核 KV 和阿里云调用，直接进入图片缓存及代理流程；手动 URL 黑名单继续生效。
+恢复时将 `wrangler.toml` 中该值改为 `"true"` 并部署。仅显式设置 `"false"` 才关闭审核；关闭期间继续保留 Pixiv 的 `private, no-store` 浏览器缓存策略，便于恢复审核。
+以下为启用审核时的行为。
+
 仅 `pximg.net` 及其子域名调用阿里云 `ImageModeration`，Bilibili 和其他图片源保持原有流程。
 审核在 L1/R2 图片缓存读取之前执行，手动 URL 黑名单仍优先处理。
 唯一免审地址为 `https://s.pximg.net/common/images/no_profile.png`（Pixiv 官方默认头像），
