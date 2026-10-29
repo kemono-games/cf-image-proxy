@@ -3,14 +3,14 @@ account_id = "bfe6a54d9224134a05830fad09110e3c"
 main = "src/index.ts"
 compatibility_date = "2024-05-29"
 [observability]
-enabled = true
+enabled = false
 head_sampling_rate = 0.1
 [observability.logs]
-enabled = true
-invocation_logs = true
+enabled = false
+invocation_logs = false
 head_sampling_rate = 0.1
 [observability.traces]
-enabled = true
+enabled = false
 head_sampling_rate = 0.1
 [placement]
 mode = "smart"
